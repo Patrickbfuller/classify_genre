@@ -1,9 +1,11 @@
-import numpy as numpy
+import numpy as np
 import librosa
 
-def listen(fp:str, genre:str, duration=240, granularity:10):
+def listen(fp:str, genre:str, duration=240, granularity=10):
     """
-    Extract audio features from a song. 
+    Extract audio features from a song. Split a song into segments and 
+    extract sonic features for each segment using librosa. Return a list
+    of dictionaries of features.
 
     ---
     Input: 
@@ -21,6 +23,12 @@ def listen(fp:str, genre:str, duration=240, granularity:10):
 
     Output: List of dictionaries containing rows 
     """
+    ts, sr = librosa.load(
+        path=fp,
+        sr=None,
+        duration=duration
+    )
+
     song_rows = []
     for y in np.array_split(ts, duration/granularity):
         tempo, beats = librosa.beat.beat_track(y=y, sr=sr)
@@ -33,8 +41,8 @@ def listen(fp:str, genre:str, duration=240, granularity:10):
         mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=12)
         
         seg_features = {
-            'song': path
-            'genre': genre
+            'song': fp,
+            'genre': genre,
             'tempo' : tempo,
             'beats' : beats.shape[0],
             'chroma_stft' : chroma_stft.mean(),
@@ -47,5 +55,5 @@ def listen(fp:str, genre:str, duration=240, granularity:10):
         seg_features.update(
             {f'mfcc{i+1}': mfcc.mean() for i, mfcc in enumerate(mfccs)}
         )
-        row.append(seg_features)
+        song_rows.append(seg_features)
     return song_rows
