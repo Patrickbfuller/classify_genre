@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import librosa
 import requests
 import bs4
@@ -6,20 +7,6 @@ import youtube_dl
 from glob import glob
 import os
 import json
-
-ydl = youtube_dl.YoutubeDL(
-    params={
-        'format': 'bestaudio/best',
-        'ignoreerrors': True,
-        'outtmpl': '%(title)s.%(ext)s',
-        'playlistend': 1,
-        'postprocessors': [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'm4a',
-            'preferredquality': '192',
-        }],
-    }
-)
 
 def extract_segment_features(y, sr):
     """
@@ -58,8 +45,8 @@ def extract_segment_features(y, sr):
 def listen(fp:str, genre:str, duration=240, granularity=10):
     """
     Extract audio features from a song by segment. Split a song into segments and 
-    extract sonic features for each segment using librosa. Return a list
-    of dictionaries of features.
+    extract sonic features for each segment using librosa. Return a pandas
+    DataFrame of features.
 
     ---
     Input: 
@@ -84,10 +71,11 @@ def listen(fp:str, genre:str, duration=240, granularity=10):
     )
     song_rows = []
     for y in np.array_split(ts, duration/granularity):
-        seg_features = {'song': fp, 'genre': genre}
-        seg_features.update(extract_segment_features(y, sr))
-        song_rows.append(seg_features)
-    return song_rows
+        if np.any(y):
+            seg_features = {'song': fp, 'genre': genre}
+            seg_features.update(extract_segment_features(y, sr))
+            song_rows.append(seg_features)
+    return pd.DataFrame(song_rows)
 
 #### Split to separate .py maybe?
 
@@ -105,29 +93,52 @@ def get_urls(url:str):
         ]
     return ['https://www.youtube.com' + sfx for sfx in url_suffixes]
 
+def get_m4a(url, i):
+    """
+    Write Me
+    """
+    ydl = youtube_dl.YoutubeDL(
+        params={
+            'format': 'bestaudio/best',
+            'quiet': True,
+            'ignoreerrors': True,
+            'outtmpl': 'data/%(title)s.%(ext)s',
+            'playliststart': i,
+            'playlistend': i,
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'm4a',
+                'preferredquality': '192',
+                }],
+            }
+        )
+    ydl.download([url])
+
 def get_rows_from_m4a(url:str, genre:str):
     """
-    Given the url of a youtube video and its genre, extract the m4a audio. For
-    unique segments of the audio, extract sonic features to dictionaries.
-    Remove the m4a and return a list of the dictionaries.
+    Given the m4a audio extract sonic features from segments of an audio file
+    to dictionaries. Remove the m4a and return a the data in json format.
     """
-    ydl.download([url])
-    m4a_fp = glob('*.m4a')[0]
+    m4a_fp = glob('data/*.m4a')[0]
     song_rows = listen(m4a_fp, genre)
     os.remove(m4a_fp)
-    return song_rows
+    return song_rows.to_json(orient='records', lines=True)
 
-def collect_genre_features(genres:dict, data_fp="./data/genre_features.json"):
+def collect_genre_features(genres:dict, data_fp="data/genre_features.json"):
     """
     Given a dictionary with keys and values: name of genre and url of youtube
     playlists corresponding to the genre, extract sonic features for each song
     in segments. Store the features in json file with default as
     'data/genre_features.json'
     """
-    with open(data_fp, 'at+') as f:
+    with open(data_fp, 'a+') as f:
         for genre in genres:
             urls = get_urls(genres[genre])
-            for url in urls:
-                song_rows = get_rows_from_m4a(url, genre)
-                for row in song_rows:
-                    f.write(row)
+            for i, url in enumerate(urls):
+                try:
+                    get_m4a(url, i+1)
+                    song_json = get_rows_from_m4a(url, genre)
+                    f.write(song_json)
+                    f.write('\n')
+                except Exception:
+                    pass
