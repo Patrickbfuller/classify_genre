@@ -44,8 +44,8 @@ def extract_segment_features(y, sr):
 
 def listen(fp:str, genre:str, duration=240, granularity=10):
     """
-    Extract audio features from a song by segment. Split a song into segments and 
-    extract sonic features for each segment using librosa. Return a pandas
+    Extract audio features from a song by segment. Split a song into segments
+    and extract sonic features for each segment using librosa. Return a pandas
     DataFrame of features.
 
     ---
