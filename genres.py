@@ -7,6 +7,7 @@ import youtube_dl
 from glob import glob
 import os
 import json
+import pickle
 
 def extract_segment_features(y, sr):
     """
@@ -46,7 +47,7 @@ def listen(fp:str, genre:str, duration=240, granularity=10):
     """
     Extract audio features from a song by segment. Split a song into segments
     and extract sonic features for each segment using librosa. Return a pandas
-    DataFrame of features.
+    DataFrame of features. If no genre specified, return just features.
 
     ---
     Input: 
@@ -69,6 +70,7 @@ def listen(fp:str, genre:str, duration=240, granularity=10):
         sr=None,
         duration=duration
     )
+
     song_rows = []
     for y in np.array_split(ts, duration/granularity):
         if np.any(y):
@@ -142,3 +144,37 @@ def collect_genre_features(genres:dict, data_fp="data/genre_features.json"):
                     f.write('\n')
                 except Exception:
                     pass
+
+def classify_rows(df):
+    """
+
+    """
+    with open('genre_clf.pkl', 'rb') as f:
+        model = pickle.load(f)
+    
+    seg_preds = model.predict_proba(df.drop(['song', 'genre'], axis=1))
+    preds = 100 * seg_preds.sum(axis=0)/seg_preds.sum()
+    return [(g,p) for g, p in zip(model.classes_, preds.round(3))]
+
+def classify(url=None, m4a_fp=None):
+    """
+    Input the filepath to m4a audio file or a the url to a youtube video of a
+    song. Extract audio features and classify its likelihood of being among the
+    genres, Country, Jazz, Hip Hop, Classical, Metal or Electronic.
+    """
+    if m4a_fp == None:
+        if url == None:
+            return "Please Specify a url or filepath to an m4a"
+        get_m4a(url, 1)
+        m4a_fp = glob('data/*.m4a')[0]
+    df = listen(fp=m4a_fp, genre=' ')
+    genre_preds = classify_rows(df)
+    return sorted(genre_preds, key=lambda x: x[1], reverse=True)
+    
+    # with open('genre_clf.pkl', 'rb') as f:
+    #     model = pickle.load(f)
+    
+    # preds = model.predict_proba(df.drop(['song', 'genre'], axis=1))
+    # return None
+
+
