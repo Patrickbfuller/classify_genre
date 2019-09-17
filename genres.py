@@ -169,6 +169,7 @@ def classify(url=None, m4a_fp=None):
         m4a_fp = glob('data/*.m4a')[0]
     df = listen(fp=m4a_fp, genre=' ')
     genre_preds = classify_rows(df)
+    os.remove(m4a_fp)
     return sorted(genre_preds, key=lambda x: x[1], reverse=True)
     
     # with open('genre_clf.pkl', 'rb') as f:
@@ -177,4 +178,13 @@ def classify(url=None, m4a_fp=None):
     # preds = model.predict_proba(df.drop(['song', 'genre'], axis=1))
     # return None
 
-
+def percentify_cm(cm):
+    """
+    For each label, depict the percent predicted as each label.
+    Input : Confusion Matrix
+    Output : Confusion Matrix Percent of True Labels
+    """
+    n = len(cm)
+    row_totals = cm.sum(axis=1).reshape(n,1)
+    percents = 100 * (cm/row_totals)
+    return percents.round(1)
