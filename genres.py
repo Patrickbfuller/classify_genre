@@ -169,7 +169,8 @@ def classify(url=None, m4a_fp=None):
         m4a_fp = glob('data/*.m4a')[0]
     df = listen(fp=m4a_fp, genre=' ')
     genre_preds = classify_rows(df)
-    os.remove(m4a_fp)
+    if m4a_fp == None:
+        os.remove(m4a_fp)
     return sorted(genre_preds, key=lambda x: x[1], reverse=True)
     
     # with open('genre_clf.pkl', 'rb') as f:
