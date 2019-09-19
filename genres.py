@@ -163,13 +163,14 @@ def classify(url=None, m4a_fp=None):
     genres, Country, Jazz, Hip Hop, Classical, Metal or Electronic.
     """
     if m4a_fp == None:
+        dl = True
         if url == None:
             return "Please Specify a url or filepath to an m4a"
         get_m4a(url, 1)
         m4a_fp = glob('data/*.m4a')[0]
     df = listen(fp=m4a_fp, genre=' ')
     genre_preds = classify_rows(df)
-    if m4a_fp == None:
+    if url:     # If the file was downloaded remove it.
         os.remove(m4a_fp)
     return sorted(genre_preds, key=lambda x: x[1], reverse=True)
     
