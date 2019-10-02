@@ -8,6 +8,7 @@ from glob import glob
 import os
 import json
 import pickle
+from sklearn.metrics import log_loss, jaccard_score
 
 def extract_segment_features(y, sr):
     """
@@ -190,3 +191,18 @@ def percentify_cm(cm):
     row_totals = cm.sum(axis=1).reshape(n,1)
     percents = 100 * (cm/row_totals)
     return percents.round(1)
+
+def eval_model(y_test, preds, pred_probas, labels):
+    genre_scores = jaccard_score(
+                y_test, preds,
+                average=None,
+                labels=labels
+            ).round(5)
+
+    print(f"""
+    Log Loss:
+        {log_loss(y_test, pred_probas, labels=labels)}
+    Jaccard:
+        {jaccard_score(y_test, preds, average='macro').round(5)}""")
+    for label, score in zip(labels, genre_scores):
+        print(f"\t-{label.title()}: {score})")
