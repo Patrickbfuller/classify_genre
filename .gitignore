@@ -106,8 +106,8 @@ venv.bak/
 #vs code
 .vscode
 
-# data 
-data/
+# data json files
+data/*.json 
 
 # DS_Store
 .DS_Store
