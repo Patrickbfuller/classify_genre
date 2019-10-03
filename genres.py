@@ -150,7 +150,7 @@ def classify_rows(df):
     """
 
     """
-    with open('genre_clf.pkl', 'rb') as f:
+    with open('10genre_clf.pkl', 'rb') as f:
         model = pickle.load(f)
     
     seg_preds = model.predict_proba(df.drop(['song', 'genre'], axis=1))
@@ -164,7 +164,6 @@ def classify(url=None, m4a_fp=None):
     genres, Country, Jazz, Hip Hop, Classical, Metal or Electronic.
     """
     if m4a_fp == None:
-        dl = True
         if url == None:
             return "Please Specify a url or filepath to an m4a"
         get_m4a(url, 1)
