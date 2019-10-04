@@ -180,15 +180,19 @@ def classify(url=None, m4a_fp=None):
     # preds = model.predict_proba(df.drop(['song', 'genre'], axis=1))
     # return None
 
-def percentify_cm(cm):
+def percentify_cm(cm, metric='recall'):
     """
     For each label, depict the percent predicted as each label.
     Input : Confusion Matrix
     Output : Confusion Matrix Percent of True Labels
     """
     n = len(cm)
-    row_totals = cm.sum(axis=1).reshape(n,1)
-    percents = 100 * (cm/row_totals)
+    if metric == 'recall':
+        row_totals = cm.sum(axis=1).reshape(n,1)
+        percents = 100 * (cm/row_totals)
+    if metric == 'precision':
+        column_totals = cm.sum(axis=0)
+        percents = 100 * (cm/column_totals)
     return percents.round(1)
 
 def eval_model(y_test, preds, pred_probas, labels):
