@@ -17,7 +17,7 @@
               warnings.warn(response.text)
 
       def get_prediction(ev):
-          """Get the predicted probability."""
+          """Get the predicted genre probabilities."""
           req = ajax.ajax()
           req.bind('complete', show_results)
           req.open('POST', '/predict', True)
@@ -28,7 +28,7 @@
       document["predict_button"].bind("click", get_prediction)
     </script>
     <textarea id="user_input"></textarea>
-    <button id="predict_button">Predict!</button>
+    <button id="predict_button">Listen!</button>
     <div id="result"></div>
   </body>
 </html>

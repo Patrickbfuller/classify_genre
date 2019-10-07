@@ -148,9 +148,15 @@ def collect_genre_features(genres:dict, data_fp="data/genre_features.json"):
 
 def classify_rows(df):
     """
-
+    Input sonic features of song segments and use pickled classifier model.
+    Predict the genre of each row and return the average results for each
+    genre. Set location of model depending on if being run from flask app.
     """
-    with open('10genre_clf.pkl', 'rb') as f:
+    if __name__ == 'archive.genres':
+        pkl_fp = 'archive/10genre_clf.pkl'
+    else:
+        pkl_fp = '10genre_clf.pkl'
+    with open(pkl_fp, 'rb') as f:
         model = pickle.load(f)
     
     seg_preds = model.predict_proba(df.drop(['song', 'genre'], axis=1))
