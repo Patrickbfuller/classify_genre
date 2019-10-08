@@ -37,10 +37,8 @@
             classes = eval(response.text)['probabilities']
             print(type(classes))
             for i, (genre, proba) in enumerate(classes):
-                print(type(i), i)
-                print(type(genre), genre)
-                print(type(proba), proba)
-                document[f"result_{i}"].html = genre.upper()
+                row = genre.title() + ": " + str(round(proba, 2)) + "%"
+                document[f"result_{i}"].html = row
             #document["result"].html = str(classes)
         else:
             warnings.warn(response.text)
@@ -98,8 +96,10 @@
     
     <!-- Icons Grid -->
     <section class="features-icons bg-light text-center">
-        <i class="icon-playlist m-auto text-primary"></i>
-        {% for i in range(10) %}
+        <div>
+          <h4 id='result_0'></h4>
+        </div>
+        {% for i in range(1,10) %}
             <div id="result_{{i}}"></div>
         {% endfor %}
         
@@ -240,17 +240,21 @@
               <a href="#">Privacy Policy</a>
             </li>
           </ul> -->
-          <p class="text-muted small mb-4 mb-lg-0"> Reach me at patrickbfuller@gmail.com</p>
+          <i class="icon-mustache m-auto text-primary"></i>
+          <p class="text-muted small mb-4 mb-lg-0">
+            Reach me at patrickbfuller@gmail.com
+            <br>or below:
+          </p>
         </div>
         <div class="col-lg-6 h-100 text-center text-lg-right my-auto">
           <ul class="list-inline mb-0">
             <li class="list-inline-item mr-3">
-              <a href="#">
+              <a href="https://github.com/Patrickbfuller/classify_genre">
                 <i class="fab fa-github fa-2x fa-fw"></i>
               </a>
             </li>
             <li class="list-inline-item mr-3">
-              <a href="#">
+              <a href="https://www.linkedin.com/in/patrick-b-fuller">
                 <i class="fab fa-linkedin fa-2x fa-fw"></i>
               </a>
             </li>
@@ -263,6 +267,7 @@
         </div>
       </div>
     </div>
+
   </footer>
 
   <!-- Bootstrap core JavaScript -->
