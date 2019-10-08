@@ -21,5 +21,4 @@ def predict():
     data = request.json
     song_url = data['user_input']
     prediction = classify(url=song_url)
-    print(prediction)
-    return jsonify({'probability': prediction})
+    return jsonify({'probabilities': prediction})
