@@ -17,8 +17,9 @@ def index():
 
 @app.route('/predict', methods=['GET', 'POST'])
 def predict():
-    """Return a random prediction."""
+    """Return the predicted probabilities of belonging to genres."""
     data = request.json
     song_url = data['user_input']
     prediction = classify(url=song_url)
+    print(prediction)
     return jsonify({'probability': prediction})

@@ -46,9 +46,13 @@
         req.set_header('content-type','application/json')
         data = json.dumps({'user_input': document['user_input'].value})
         req.send(data)
+        print('brython')
 
     document["predict_button"].bind("click", get_prediction)
   </script>
+  <!-- <textarea id="user_input"></textarea> -->
+  <!-- <button id="predict_button">Listen!</button> -->
+  <!-- <div id="result"></div> -->
   
   <!-- Navigation -->
   <nav class="navbar navbar-light bg-light static-top">
@@ -57,6 +61,7 @@
       <a class="btn btn-primary" href="https://medium.com/@patrickbfuller/machine-listening-revisited-845a26ed46d3#e16e-810265c9cef7">Read The Blog</a>
     </div>
   </nav>
+  
   
   <!-- Masthead -->
   <header class="masthead text-white text-center">
@@ -68,17 +73,15 @@
           <h7 class="mb-5">(It may take a moment.)</h7>
         </div>
         <div class="col-md-10 col-lg-8 col-xl-7 mx-auto">
-          <form>
             <div class="form-row">
               <div class="col-12 col-md-9 mb-2 mb-md-0">
-                <input id='user_input' type="text" class="form-control form-control-lg" placeholder="Enter your url here...">
+                <input id='user_input' type="url" class="form-control form-control-lg" placeholder="Enter your url here...">
               </div>
               <div class="col-12 col-md-3">
-                <button id='predict_button' type="submit" class="btn btn-block btn-lg btn-primary">Predict!</button>
+                <button id="predict_button" type="submit" class="btn btn-block btn-lg btn-primary">Predict!</button>
               </div>
               <div id="result"></div>
             </div>
-          </form>
         </div>
       </div>
     </div>
