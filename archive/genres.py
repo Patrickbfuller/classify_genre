@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import seaborn as sns
 import librosa
 import requests
 import bs4
@@ -9,6 +10,7 @@ import os
 import json
 import pickle
 from sklearn.metrics import log_loss, jaccard_score
+sns.mpl.pyplot.style.use('seaborn')
 
 def extract_segment_features(y, sr):
     """
@@ -215,3 +217,13 @@ def eval_model(y_test, preds, pred_probas, labels):
         {jaccard_score(y_test, preds, average='macro').round(5)}""")
     for label, score in zip(labels, genre_scores):
         print(f"\t-{label.title()}: {score})")
+
+def save_genre_barplot(genre_probs:list, fp:str):
+    """
+    Input a list of tuples containing (genre and its probability).
+    Save a horizontal barplot of the probabilities.
+    """
+    genres = [x[0] for x in genre_probs]
+    probas = [x[1] for x in genre_probs]
+    ax = sns.barplot(probas, genres, orient='h')
+    ax.figure.savefig(fp)

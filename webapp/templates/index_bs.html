@@ -39,7 +39,8 @@
             for i, (genre, proba) in enumerate(classes):
                 row = genre.title() + ": " + str(round(proba, 2)) + "%"
                 document[f"result_{i}"].html = row
-            #document["result"].html = str(classes)
+            viz_html = '<img src="webapp/static/img/app_visual.png"></img>'
+            document["visual"].html = viz_html
         else:
             warnings.warn(response.text)
 
@@ -110,7 +111,7 @@
         {% for i in range(1,10) %}
             <div id="result_{{i}}"></div>
         {% endfor %}
-        
+        <div id='visual'></div>
     <div class="container">
       <div class="row">
         <div class="col-lg-4">
