@@ -12,6 +12,12 @@ import pickle
 from sklearn.metrics import log_loss, jaccard_score
 sns.mpl.pyplot.style.use('seaborn')
 
+def generate_random_dir():
+    """Create a random tag for an unambiguous and unique use."""
+    arr = np.random.random(2)
+    s = ''.join([str(n).strip('0.') for n in arr])
+    return s
+
 def extract_segment_features(y, sr):
     """
     Extract audio features from a segment of audio using librosa.
@@ -100,14 +106,17 @@ def get_urls(url:str):
 
 def get_m4a(url, i):
     """
-    Write Me
+    Download a url and return the filepath of the directory containing the
+    audio file.
     """
+    dir = generate_random_dir()
+    outtmpl = f'data/{dir}/%(title)s.%(ext)s'
     ydl = youtube_dl.YoutubeDL(
         params={
             'format': 'bestaudio/best',
             'quiet': True,
             'ignoreerrors': True,
-            'outtmpl': 'data/%(title)s.%(ext)s',
+            'outtmpl': outtmpl,
             'playliststart': i,
             'playlistend': i,
             'postprocessors': [{
@@ -118,15 +127,17 @@ def get_m4a(url, i):
             }
         )
     ydl.download([url])
+    return f'data/{dir}'
 
-def get_rows_from_m4a(url:str, genre:str):
+def get_rows_from_m4a(url:str, genre:str, dir_fp:str):
     """
     Given the m4a audio extract sonic features from segments of an audio file
     to dictionaries. Remove the m4a and return a the data in json format.
     """
-    m4a_fp = glob('data/*.m4a')[0]
+    m4a_fp = glob(f'{dir_fp}/*.m4a')[0]
     song_rows = listen(m4a_fp, genre)
     os.remove(m4a_fp)
+    os.rmdir(dir_fp)
     return song_rows.to_json(orient='records', lines=True)
 
 def collect_genre_features(genres:dict, data_fp="data/genre_features.json"):
@@ -141,8 +152,8 @@ def collect_genre_features(genres:dict, data_fp="data/genre_features.json"):
             urls = get_urls(genres[genre])
             for i, url in enumerate(urls):
                 try:
-                    get_m4a(url, i+1)
-                    song_json = get_rows_from_m4a(url, genre)
+                    dir_fp = get_m4a(url, i+1)
+                    song_json = get_rows_from_m4a(url, genre, dir_fp)
                     f.write(song_json)
                     f.write('\n')
                 except Exception:
@@ -174,12 +185,13 @@ def classify(url=None, m4a_fp=None):
     if m4a_fp == None:
         if url == None:
             return "Please Specify a url or filepath to an m4a"
-        get_m4a(url, 1)
-        m4a_fp = glob('data/*.m4a')[0]
+        dir_fp = get_m4a(url, 1)
+        m4a_fp = glob(f'{dir_fp}/*.m4a')[0]
     df = listen(fp=m4a_fp, genre=' ')
     genre_preds = classify_rows(df)
     if url:     # If the file was downloaded remove it.
         os.remove(m4a_fp)
+        os.rmdir(dir_fp)
     return sorted(genre_preds, key=lambda x: x[1], reverse=True)
     
     # with open('genre_clf.pkl', 'rb') as f:
