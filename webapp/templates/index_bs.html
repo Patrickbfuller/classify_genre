@@ -35,11 +35,10 @@
     def show_results(response):
         if response.status==200 or response.status==0:
             classes = eval(response.text)['probabilities']
-            print(type(classes))
+            viz_html = eval(response.text)['viz_html']
             for i, (genre, proba) in enumerate(classes):
                 row = genre.title() + ": " + str(round(proba, 2)) + "%"
                 document[f"result_{i}"].html = row
-            viz_html = '<img src="webapp/static/img/app_visual.png"></img>'
             document["visual"].html = viz_html
         else:
             warnings.warn(response.text)
@@ -47,12 +46,12 @@
     def get_prediction(ev):
         """Get the predicted genre probabilities."""
         req = ajax.ajax()
+        document["result_0"].html = '*listening...*'
         req.bind('complete', show_results)
         req.open('POST', '/predict', True)
         req.set_header('content-type','application/json')
         data = json.dumps({'user_input': document['user_input'].value})
         req.send(data)
-        document["result"] = 'listening...'
 
     document["predict_button"].bind("click", get_prediction)
   </script>

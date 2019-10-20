@@ -1,6 +1,5 @@
-from archive.genres import classify, save_genre_barplot
-from flask import Flask, request, render_template, jsonify
-
+from archive.genres import classify, get_barplot_html
+from flask import Flask, request, render_template, jsonify, send_file
 
 # with open('archive/10genre_clf.pkl', 'rb') as f:
 #     model = pickle.load(f)
@@ -21,8 +20,8 @@ def predict():
     data = request.json
     song_url = data['user_input']
     prediction = classify(url=song_url)
-    save_genre_barplot(
-        genre_probs=prediction,
-        fp='webapp/static/img/app_visual.png'
-        )
-    return jsonify({'probabilities': prediction})
+    viz_html = get_barplot_html(genre_probs=prediction)    
+    return jsonify({
+        'probabilities': prediction,
+        'viz_html': viz_html
+        })
