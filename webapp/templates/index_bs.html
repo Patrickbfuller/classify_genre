@@ -47,6 +47,8 @@
         """Get the predicted genre probabilities."""
         req = ajax.ajax()
         document["result_0"].html = '*listening...*'
+        for i in range(1,10):
+            document[f"result_{i}"].html = ''
         req.bind('complete', show_results)
         req.open('POST', '/predict', True)
         req.set_header('content-type','application/json')

@@ -240,9 +240,11 @@ def get_barplot_html(genre_probs:list):
     genres = [x[0] for x in genre_probs]
     probas = [x[1] for x in genre_probs]
     ax = sns.barplot(probas, genres, orient='h')
+    ax.set_title('Genre Distribution')
+    ax.set_xlabel('Percent of Sonic Features')
     buf = BytesIO()
     ax.figure.savefig(buf, format="jpg")
     data = base64.b64encode(buf.getbuffer()).decode("ascii")
     buf.close()
     sns.mpl.pyplot.close()
-    return f"<img src='data:image/jpg;base64,{data}'/>"
+    return f'<img class="img-fluid" src="data:image/jpg;base64,{data}"/>'
