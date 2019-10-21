@@ -1,10 +1,6 @@
 from archive.genres import classify, get_barplot_html
 from flask import Flask, request, render_template, jsonify, send_file
 
-# with open('archive/10genre_clf.pkl', 'rb') as f:
-#     model = pickle.load(f)
-
-
 
 app = Flask(__name__, static_url_path="")
 
@@ -16,7 +12,8 @@ def index():
 
 @app.route('/predict', methods=['GET', 'POST'])
 def predict():
-    """Return the predicted probabilities of belonging to genres."""
+    """Return the predicted probabilities of belonging to genres and the data
+    for a corresponding barplot in HTML."""
     data = request.json
     song_url = data['user_input']
     prediction = classify(url=song_url)

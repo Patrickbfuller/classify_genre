@@ -15,7 +15,7 @@ from sklearn.metrics import log_loss, jaccard_score
 sns.mpl.pyplot.style.use('seaborn')
 
 def generate_random_string():
-    """Create a random tag for an unambiguous and unique use."""
+    """Create a random tag for unique but unambiguouos idenfication."""
     arr = np.random.random(2)
     s = ''.join([str(n).strip('0.') for n in arr])
     return s
@@ -196,11 +196,6 @@ def classify(url=None, m4a_fp=None):
         os.rmdir(dir_fp)
     return sorted(genre_preds, key=lambda x: x[1], reverse=True)
     
-    # with open('genre_clf.pkl', 'rb') as f:
-    #     model = pickle.load(f)
-    
-    # preds = model.predict_proba(df.drop(['song', 'genre'], axis=1))
-    # return None
 
 def percentify_cm(cm, metric='recall'):
     """
@@ -218,6 +213,9 @@ def percentify_cm(cm, metric='recall'):
     return percents.round(1)
 
 def eval_model(y_test, preds, pred_probas, labels):
+    """
+    Analyze the the log loss and Jaccard similarity of a set of predictions.
+    """
     genre_scores = jaccard_score(
                 y_test, preds,
                 average=None,
